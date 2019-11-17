@@ -1,10 +1,10 @@
-service: jerry-selenium-service
+service: jerry-web-worker
 runtime: custom
 env: flex
 
 env_variables:
-  CLOUD_SQL_CONNECTION_NAME: <MY-PROJECT>:<INSTANCE-REGION>:<MY-DATABASE>
-  DB_USER: my-db-user
+  CLOUD_SQL_CONNECTION_NAME: smart-radio-244817:us-east4-b:abs-ft
+  DB_USER: postgres
   DB_PASS: my-db-pass
   DB_NAME: my_db
 
