@@ -11,6 +11,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 import selenium.webdriver.support.ui as ui
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import logging
 
 from pyvirtualdisplay import Display
 import re
@@ -23,36 +24,62 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column,Integer,Text,String,Float,DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-Base = declarative_base()
 
+from google.appengine.api import taskqueue
+from google.appengine.ext import deferred
+
+Base = declarative_base()
 # Base.metadata.bind = cnx
 # DBSession = sessionmaker(bind=cnx)
-
 app = Flask(__name__)
-
 # Add the webdrivers to the path
 os.environ['PATH'] += ':'+os.path.dirname(os.path.realpath(__file__))+"/bin"
 
+js = {
+  'evernote_article':{
+    'delay':5,
+    'code2result':{'html':"""document.body.querySelectorAll('iframe')[0].contentWindow.document.lastChild.outerHTML""",
+                   'text':"""document.body.querySelectorAll('iframe')[0].contentWindow.document.lastChild.innerText"""
+                  }
+  }
+}
+
 @app.route('/',methods=['GET'])
 def index():
-    return 'Headless browser service with pubsub'
+    return 'Headless browser service with background tasks and pubsub'
 
-@app.route('/test/', methods=['GET'])
-def get_cnbc_article():
-    """downloads the HTML of a CNBC article saved in Evernote"""
-    try:
-        display = Display(visible=0, size=(1024, 768))
-        display.start()
-        d = webdriver.Firefox()
-        d.get("https://www.evernote.com/shard/s637/sh/d2d5c174-4f11-4ec7-9e39-626371f0471d/d3da04f4dfb15d8c755922f0c16c23f0") 
-        find_iframe = By.CSS_SELECTOR, 'iframe.gwt-Frame'
-        find_html = By.TAG_NAME, 'html'
-        d.close()
-        display.stop()
-        return jsonify({'success': True, "result": page_source[:500]})
-    except Exception as e:
-        print traceback.format_exc()
-        return jsonify({'success': False, 'msg': str(e)})
+def background_scraping_task1(ev_url, _task_spec = js['evernote_article']):
+    from os import sleep
+    from pyvirtualdisplay import Display
+    import logging,json
+    from time import time
+    display = Display(visible=0, size=(1024, 768))
+    display.start()
+    d = webdriver.Firefox()
+    d.get(ev_url)
+    sleep(_task_spec['delay'])
+    _ans = {}
+    start_time =  time()
+    for name,js_code in _task_spec['code2result']:
+        try:
+            _ans[name] = d.execute_script("return " + js_code)
+        except Exception as e:
+            logging.error(traceback.format_exc())
+            logging.error(str(e))
+    # cleanup selenium
+    d.close()
+    display.stop()
+    end_time = time()
+    _ans['seconds_elapsed']= int((end_time-start_time)*1000)
+    # publish the result
+    logging.info("result for url {}\n\n".format(ev_url) + json.dumps(_ans))
+    
+@app.route('/fetch_html', methods=['POST'])
+def get_ev_html():
+    params = request.get_json()
+    ev_url = params['url'] if 'url' in params else "https://www.evernote.com/shard/s637/sh/d2d5c174-4f11-4ec7-9e39-626371f0471d/d3da04f4dfb15d8c755922f0c16c23f0"
+    deferred.defer(background_scraping_task1, ev_url)
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
