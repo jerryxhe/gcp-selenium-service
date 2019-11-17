@@ -3,8 +3,6 @@ import traceback
 
 from flatten_dict import flatten
 import spacy
-nlp = spacy.load("en_core_web_sm")
-
 from flask import Flask, jsonify, Response
 from selenium import webdriver as wd
 from selenium.common.exceptions import StaleElementReferenceException
@@ -24,8 +22,6 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column,Integer,Text,String,Float,DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
-from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
 
 Base = declarative_base()
@@ -38,7 +34,7 @@ os.environ['PATH'] += ':'+os.path.dirname(os.path.realpath(__file__))+"/bin"
 js = {
   'evernote_article':{
     'delay':5,
-    'code2result':{'html':"""document.body.querySelectorAll('iframe')[0].contentWindow.document.lastChild.outerHTML""",
+    'js2r':{'html':"""document.body.querySelectorAll('iframe')[0].contentWindow.document.lastChild.outerHTML""",
                    'text':"""document.body.querySelectorAll('iframe')[0].contentWindow.document.lastChild.innerText"""
                   }
   }
@@ -61,9 +57,9 @@ def background_scraping_task1(ev_url, _task_spec = js['evernote_article']):
     sleep(_task_spec['delay'])
     _ans = {}
     start_time =  time()
-    for name,js_code in _task_spec['code2result']:
+    for result_name,js_code in _task_spec['js2r']:
         try:
-            _ans[name] = d.execute_script("return " + js_code)
+            _ans[result_name] = d.execute_script("return " + js_code)
         except Exception as e:
             logging.error(traceback.format_exc())
             logging.error(str(e))
