@@ -12,6 +12,7 @@ RUN virtualenv --no-download /env -p python
 ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 ADD requirements.txt /app/
+RUN pip install --upgrade setuptools
 RUN pip install -r requirements.txt
 
 RUN python -m spacy download en_core_web_sm
