@@ -49,13 +49,14 @@ def index():
     return 'Headless browser service with background tasks and pubsub'
 
 def background_scraping_task1(ev_url, _task_spec = js['evernote_article']):
+    from selenium import webdriver as wd
     from os import sleep
     from pyvirtualdisplay import Display
     import logging,json
     from time import time
     display = Display(visible=0, size=(1024, 768))
     display.start()
-    d = webdriver.Firefox()
+    d = wd.Firefox()
     d.get(ev_url)
     sleep(_task_spec['delay'])
     _ans = {}
