@@ -17,4 +17,4 @@ beta_settings:
 handlers: - url: /_ah/queue/deferred
 script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py login: admin
 
-entrypoint: gunicorn -b :$PORT main:app --timeout 180
+entrypoint: gunicorn -b :8080 main:app --timeout 180
