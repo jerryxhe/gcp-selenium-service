@@ -15,9 +15,6 @@ ADD requirements.txt /app/
 RUN pip install --upgrade setuptools
 RUN pip install -r requirements.txt
 
-RUN python -m spacy download en_core_web_sm
-RUN python -m polyglot.downloader all-corpora
-
 ADD . /app/
 
 CMD exec gunicorn -b :$PORT main:app --timeout 180
