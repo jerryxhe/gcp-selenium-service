@@ -8,9 +8,7 @@ jellyfish
 scikit-learn
 toolz
 requests
-pytest==5.2.1
 spacy
-polyglot
 gunicorn==19.7.1
 selenium==3.13.0
 pyvirtualdisplay==0.2.1
