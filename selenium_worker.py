@@ -18,6 +18,7 @@ js = {
   }
 }
 
+from time import time
 class SeleniumChromeWorker(Thread):
     def __init__(self, redis_handle):
         Thread.__init__(self)
@@ -30,13 +31,15 @@ class SeleniumChromeWorker(Thread):
         self.task_spec = js['evernote_article']
     def run(self):
         for ev_url in self.pubsub.listen():
+          if len(ev_url) < 20:
+              continue
           self.browser.get(ev_url)
-          sleep(3)
-          _ans = {}
+          sleep(4)
+          _ans = {}  
           start_time =  time()
           for result_name,js_code in task_spec['js2r'].items():
             try:
-              _ans[result_name] = d.execute_script("return " + js_code)
+              _ans[result_name] = self.browser.execute_script("return " + js_code)
             except Exception as e:
               print(traceback.format_exc())
               print(str(e))
@@ -46,8 +49,9 @@ class SeleniumChromeWorker(Thread):
           final_result = json.dumps(_ans)
           self.redis.set('selenium_result', final_result)
           self.redis.publish('ev_result', final_result)
+
 if __name__=="__main__":
-    r = redis.Redis('127.0.0.1')
+    r = redis.Redis('127.0.0.1', port=6379, db=0)
     client = SeleniumChromeWorker(r)
     client.start()
 
