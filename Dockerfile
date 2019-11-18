@@ -13,7 +13,8 @@ RUN apt-get install -y google-chrome-stable
 RUN apt-get install -y lua5.3
 RUN apt-get install -y firefox
 RUN apt-get install git-lfs
-RUN COPY supervisord.conf /etc/supervisord.conf
+ADD . supervisord.conf
+COPY supervisord.conf /etc/supervisord.conf
 LABEL python_version=python3
 RUN virtualenv --no-download /env -p python
 ENV VIRTUAL_ENV /env
