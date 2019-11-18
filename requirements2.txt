@@ -1,0 +1,4 @@
+PyGreSQL
+evernote
+sqlalchemy
+redis
