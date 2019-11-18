@@ -2,6 +2,7 @@
 from selenium import webdriver as wd
 from pyvirtualdisplay import Display
 import sys,os
+import traceback
 os.environ['PATH'] += ':'+os.path.dirname(os.path.realpath(__file__))
 
 js = {
@@ -18,12 +19,14 @@ if __name__=="__main__":
   from time import time
   display = Display(visible=0, size=(1024, 768))
   display.start()
-  d = wd.Firefox()
+  d = wd.Chrome()
   d.get(ev_url)
   task_spec = js['evernote_article']
   _ans = {}
+  from time import sleep
+  sleep(5)
   start_time =  time()
-  for result_name,js_code in task_spec['js2r']:
+  for result_name,js_code in task_spec['js2r'].items():
     try:
       _ans[result_name] = d.execute_script("return " + js_code)
     except Exception as e:
