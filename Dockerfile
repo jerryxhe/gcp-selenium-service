@@ -2,6 +2,9 @@ FROM gcr.io/google-appengine/python
 
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
 RUN apt-get update
+redis-server
+RUN apt-get install -y supervisor
+RUN mkdir -p /var/log/supervisor
 RUN apt-get install -y xvfb
 RUN apt-get install -y firefox
 RUN apt-get install git-lfs

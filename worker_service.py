@@ -20,7 +20,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column,Integer,Text,String,Float,DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from google.appengine.ext import deferred
+import subprocess
 
 Base = declarative_base()
 # Base.metadata.bind = cnx
