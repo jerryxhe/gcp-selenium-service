@@ -10,6 +10,7 @@ RUN apt-get install -y supervisor
 RUN mkdir -p /var/log/supervisor
 RUN apt-get install -y xvfb
 RUN apt-get install -y google-chrome-stable
+RUN apt-get install -y lua5.3
 RUN apt-get install -y firefox
 RUN apt-get install git-lfs
 RUN COPY supervisord.conf /etc/supervisord.conf
@@ -22,6 +23,8 @@ RUN pip3 install --upgrade setuptools
 RUN pip3 install -r requirements.txt
 RUN pip3 install redis
 RUN pip install redis
+RUN pip install --upgrade setuptools
+
 ADD . /app/
 #CMD exec gunicorn -b :$PORT main_server:app --timeout 180
 CMD ["supervisord", "-n"]
