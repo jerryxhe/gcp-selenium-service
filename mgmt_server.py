@@ -40,7 +40,13 @@ js = {
 
 @app.route('/',methods=['GET'])
 def index():
-    return 'Headless browser service with background tasks and pubsub'
+    import redis
+    r = redis.Redis(host='localhost')
+    try:
+        res = r.get('selenium_result')
+        return res['html']
+    except:
+        return 'Headless browser service with background tasks and pubsub'
 
 def background_scraping_task1(ev_url, _task_spec = js['evernote_article']):
     from selenium import webdriver as wd
