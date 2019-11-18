@@ -31,9 +31,12 @@ class SeleniumChromeWorker(Thread):
         self.task_spec = js['evernote_article']
     def run(self):
         for ev_url in self.pubsub.listen():
-          if len(ev_url) < 20:
-              continue
-          self.browser.get(ev_url)
+          if 'data' not in ev_url:
+            continue
+          if isinstance(ev_url['data'], int):
+            continue
+          print(ev_url['data'])
+          self.browser.get(ev_url['data'])
           sleep(4)
           _ans = {}  
           start_time =  time()
