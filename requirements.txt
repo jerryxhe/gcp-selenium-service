@@ -1,17 +1,12 @@
 Flask
 pymongo
 sqlalchemy
-nltk
 flatten-dict
-jellyfish
-scikit-learn
 toolz
 requests
-spacy
 gunicorn==19.7.1
 selenium==3.13.0
 pyvirtualdisplay==0.2.1
 google-cloud-pubsub==1.0.0
 evernote
 PyGreSQL
-pymagnitude

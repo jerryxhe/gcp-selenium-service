@@ -2,7 +2,6 @@ import os
 import traceback
 
 from flatten_dict import flatten
-import spacy
 from flask import Flask, jsonify, Response
 from selenium import webdriver as wd
 from selenium.common.exceptions import StaleElementReferenceException
@@ -15,7 +14,6 @@ from pyvirtualdisplay import Display
 import re
 from toolz import itertoolz, compose
 from toolz.curried import map as cmap, sliding_window, pluck
-from sklearn.feature_extraction.text import CountVectorizer
 
 import os
 from sqlalchemy import create_engine

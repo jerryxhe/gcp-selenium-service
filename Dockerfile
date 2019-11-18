@@ -17,4 +17,4 @@ RUN pip install -r requirements.txt
 
 ADD . /app/
 
-CMD exec gunicorn -b :$PORT main:app --timeout 180
+CMD exec gunicorn -b :$PORT worker_service:app --timeout 180
