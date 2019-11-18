@@ -36,13 +36,13 @@ class SeleniumChromeWorker(Thread):
           if isinstance(ev_url['data'], int):
             continue
           print(ev_url['data'])
-          self.browser.get(ev_url['data'])
+          self.browser.get(ev_url['data'].decode('ascii'))
           sleep(4)
           _ans = {}  
           start_time =  time()
-          for result_name,js_code in task_spec['js2r'].items():
+          for result_name,js_code in self.task_spec['js2r'].items():
             try:
-              _ans[result_name] = self.browser.execute_script("return " + js_code)
+              _ans[result_name] = self.browser.execute_script("return " + js_code).decode('ascii')
             except Exception as e:
               print(traceback.format_exc())
               print(str(e))
