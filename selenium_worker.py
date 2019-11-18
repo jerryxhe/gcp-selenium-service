@@ -3,8 +3,10 @@ import redis
 from threading import Thread
 from selenium import webdriver as wd
 from pyvirtualdisplay import Display
-import sys,os
+import sys,os,json
 import traceback
+from time import sleep
+
 os.environ['PATH'] += ':'+os.path.dirname(os.path.realpath(__file__))
 
 js = {
@@ -22,33 +24,30 @@ class SeleniumChromeWorker(Thread):
         self.redis = redis_handle
         self.pubsub = redis_handle.pubsub()
         self.pubsub.subscribe(['ev_url'])
+        self.display = Display(visible=0, size=(1024, 768))
+        self.display.start()
+        self.browser = wd.Chrome()
+        self.task_spec = js['evernote_article']
     def run(self):
         for ev_url in self.pubsub.listen():
-
-
-
-
-
+          self.browser.get(ev_url)
+          sleep(3)
+          _ans = {}
+          start_time =  time()
+          for result_name,js_code in task_spec['js2r'].items():
+            try:
+              _ans[result_name] = d.execute_script("return " + js_code)
+            except Exception as e:
+              print(traceback.format_exc())
+              print(str(e))
+          _ans['url'] = ev_url
+          end_time = time()
+          _ans['seconds_elapsed']= int((end_time-start_time)*1000)
+          final_result = json.dumps(_ans)
+          self.redis.set('selenium_result', final_result)
+          self.redis.publish('ev_result', final_result)
 if __name__=="__main__":
-  ev_url = sys.argv[1] if len(sys.argv)>=2 else "https://www.evernote.com/shard/s637/sh/d2d5c174-4f11-4ec7-9e39-626371f0471d/d3da04f4dfb15d8c755922f0c16c23f0"
-  from time import time
-  display = Display(visible=0, size=(1024, 768))
-  display.start()
-  d = wd.Chrome()
-  d.get(ev_url)
-  task_spec = js['evernote_article']
-  _ans = {}
-  from time import sleep
-  sleep(5)
-  start_time =  time()
-  for result_name,js_code in task_spec['js2r'].items():
-    try:
-      _ans[result_name] = d.execute_script("return " + js_code)
-    except Exception as e:
-      print(traceback.format_exc())
-      print(str(e))
-  d.close()
-  display.stop()
-  end_time = time()
-  _ans['seconds_elapsed']= int((end_time-start_time)*1000)
-  print(_ans)
+    r = redis.Redis('127.0.0.1')
+    client = SeleniumChromeWorker(r)
+    client.start()
+
