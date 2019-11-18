@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import redis
+from threading import Thread
 from selenium import webdriver as wd
 from pyvirtualdisplay import Display
 import sys,os
@@ -13,6 +15,19 @@ js = {
                   }
   }
 }
+
+class SeleniumChromeWorker(Thread):
+    def __init__(self, redis_handle):
+        Thread.__init__(self)
+        self.redis = redis_handle
+        self.pubsub = redis_handle.pubsub()
+        self.pubsub.subscribe(['ev_url'])
+    def run(self):
+        for ev_url in self.pubsub.listen():
+
+
+
+
 
 if __name__=="__main__":
   ev_url = sys.argv[1] if len(sys.argv)>=2 else "https://www.evernote.com/shard/s637/sh/d2d5c174-4f11-4ec7-9e39-626371f0471d/d3da04f4dfb15d8c755922f0c16c23f0"
