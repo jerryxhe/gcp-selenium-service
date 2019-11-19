@@ -18,6 +18,21 @@ js = {
   }
 }
 
+import threading as t
+import subprocess
+class BgLowestPriority(t.Thread):
+    def __init__(self):
+        self.stdout = None
+        self.stderr = None
+        threading.Thread.__init__(self)
+
+    def run(self):
+        p = subprocess.Popen('rsync -av /etc/passwd /tmp'.split(),
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, creationflags = subprocess.IDLE_PRIORITY_CLASS)
+        self.stdout, self.stderr = p.communicate()
+
 from time import time
 class SeleniumChromeWorker(Thread):
     def __init__(self, redis_handle):
