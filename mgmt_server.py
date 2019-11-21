@@ -1,6 +1,8 @@
 import os
 import traceback
 
+os.environ['LMDB_FORCE_CFFI'] = '1'
+import lmdb
 from flatten_dict import flatten
 from flask import Flask, jsonify, Response
 from selenium import webdriver as wd
@@ -15,6 +17,7 @@ import re
 from toolz import itertoolz, compose
 from toolz.curried import map as cmap, sliding_window, pluck
 
+import numpy as np
 import os
 from sqlalchemy import create_engine
 from sqlalchemy import Column,Integer,Text,String,Float,DateTime
@@ -37,6 +40,11 @@ js = {
                   }
   }
 }
+
+X = np.array(range(50))
+map_size = X.nbytes * 10
+env = lmdb.open('mylmdb', map_size=map_size)
+
 
 @app.route('/',methods=['GET'])
 def index():
